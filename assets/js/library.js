@@ -49,6 +49,15 @@ var library = (function () {
         }
     }
 
+    function getFormattedDate(date) {
+        const rawDate = new Date(date);
+
+        const options = { year: 'numeric', month: 'short', day: '2-digit' };
+        const formattedDate = rawDate.toLocaleDateString('en-US', options);
+
+        return formattedDate;
+    }
+
     function announcement_createContent(item) {
 
         let announcementDiv = document.getElementById("announcement_container");
@@ -77,12 +86,17 @@ var library = (function () {
         function announcement_getItemLists(objKeys, item) {
 
             let items = item[objKeys]?.map((val) => {
+
+                let date = val.date ? getFormattedDate(val.date) : "";
+                let deadline = val.deadline ? getFormattedDate(val.deadline) : "";
+
+
                 if (val.type !== "" && (val.type == "Announcement" || val.type === "Lab" || val.type === "Assignment")) {
                     if (val.type == "Announcement") {
-                        return `<li> <div> <span style="color: ${getColors(val.type)}; font-weight: bold">${val.type} ${val.no} </span> : ${val.date !== "" ? "Date" : ""} <span style="color: #7253ed; font-style: italic"> ${val.date} </span> </div> <div style="padding-left: 20px; padding-right: 60px"> ${val.text} </div> </li>`
+                        return `<li> <div> <span style="color: ${getColors(val.type)}; font-weight: bold">${val.type} ${val.no} </span> : ${date !== "" ? "Date" : ""} <span style="color: #7253ed; font-style: italic"> ${date} </span> </div> <div style="padding-left: 20px; padding-right: 60px"> ${val.text} </div> </li>`
                     }
                     else if (val.type == "Lab" || val.type == "Assignment") {
-                        return `<li> <span style="color: ${getColors(val.type)}; font-weight: bold">${val.type} ${val.no} </span> : Deadline <span style="color: #7253ed; font-style: italic"> ${val.deadline} </span> </li>`
+                        return `<li> <span style="color: ${getColors(val.type)}; font-weight: bold">${val.type} ${val.no} </span> : Deadline <span style="color: #7253ed; font-style: italic"> ${deadline} </span> </li>`
                     }
                 }
             }).filter(e => e !== undefined)
@@ -117,22 +131,29 @@ var library = (function () {
 
         function calendar_getItemLists(objKeys, item) {
 
+
+
+
             let items = item[objKeys]?.map((val) => {
+
+                let date = val.date ? getFormattedDate(val.date) : "";
+                let deadline = val.deadline ? getFormattedDate(val.deadline) : "";
+
                 if (val.type !== "") {
                     if (val.type == "Notice") {
-                        return createNoticeList(val.date, val.text)
+                        return createNoticeList(date, val.text)
                     }
                     else if (val.type == "Lecture") {
-                        return createLecList(val.date, val.type, val.no, val.makeup, val.text, val.link)
+                        return createLecList(date, val.type, val.no, val.makeup, val.text, val.link)
                     }
                     else if (val.type == "Quiz") {
-                        return createQuizList(val.date, val.type, val.no, val.text, val.link, val.solution_link, val.deadline)
+                        return createQuizList(date, val.type, val.no, val.text, val.link, val.solution_link, deadline)
                     }
                     else if (val.type == "Lab") {
-                        return createLabList(val.date, val.makeup, val.type, val.no, val.text, val.link, val.solution_link, val.deadline)
+                        return createLabList(date, val.makeup, val.type, val.no, val.text, val.link, val.solution_link, deadline)
                     }
                     else if (val.type == "Assignment") {
-                        return createAssignmentList(val.date, val.type, val.no, val.text, val.link, val.solution_link, val.deadline)
+                        return createAssignmentList(date, val.type, val.no, val.text, val.link, val.solution_link, deadline)
                     }
                 }
             }).filter(e => e !== undefined)
@@ -690,11 +711,11 @@ var library = (function () {
                     const resMessage = data.data.message;
                     const statusCode = data.data.status;
 
-                    if(statusCode === 200) {
-                    errorMsg.removeAttribute('style', "color: red");
-                    errorMsg.setAttribute('style', "color: #41d693");    
-                    errorMsg.innerText = resMessage;
-                    }else{
+                    if (statusCode === 200) {
+                        errorMsg.removeAttribute('style', "color: red");
+                        errorMsg.setAttribute('style', "color: #41d693");
+                        errorMsg.innerText = resMessage;
+                    } else {
                         errorMsg.innerText = resMessage;
                     }
                     loading.classList.add("d-none");
